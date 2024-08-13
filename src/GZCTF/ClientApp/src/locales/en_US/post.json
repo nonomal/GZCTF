@@ -1,0 +1,33 @@
+{
+  "label": {
+    "tag": "Tags",
+    "title": "Title",
+    "add_tag": "Enter to add tag",
+    "content": "Content",
+    "summary": "Summary"
+  },
+  "title": {
+    "index": "Posts"
+  },
+  "button": {
+    "new": "New Post",
+    "edit": "Edit Post",
+    "goto": "Go to Post",
+    "save": "Save Post",
+    "delete": "Delete Post"
+  },
+  "content": {
+    "metadata": "{{author}} published on {{date}}",
+    "pinned": "[Pinned]",
+    "details": "View Details",
+    "delete": "Are you sure you want to delete post {{title}}?",
+    "updated": {
+      "title": "Post has been changed",
+      "content": "The post has been changed. Save it?"
+    }
+  },
+  "notification": {
+    "saved": "Post has been saved",
+    "created": "Post has been created"
+  }
+}
