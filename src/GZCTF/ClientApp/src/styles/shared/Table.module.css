@@ -1,0 +1,53 @@
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.fade {
+  animation: fade 0.5s linear;
+}
+
+.table {
+  & thead {
+    position: sticky;
+    top: 0;
+    z-index: 195;
+
+    background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-7));
+
+    & tr::after {
+      content: '';
+      display: block;
+      position: absolute;
+      bottom: -1px;
+      left: 0px;
+      width: 100%;
+      height: rem(2px);
+      background-color: var(--table-border-color);
+    }
+  }
+
+  & tbody tr td {
+    white-space: nowrap;
+  }
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.nopadding {
+  padding: 0;
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+
+  & tbody tr td {
+    white-space: nowrap;
+    padding: 0 1rem 0 0;
+  }
+}

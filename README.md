@@ -5,111 +5,168 @@
 
 # GZ::CTF
 
-[![Build & Publish Image](https://github.com/GZTimeWalker/GZCTF/actions/workflows/ci.yml/badge.svg)](https://github.com/GZTimeWalker/GZCTF/actions/workflows/ci.yml)
+[![publish](https://github.com/GZTimeWalker/GZCTF/actions/workflows/ci.yml/badge.svg)](https://github.com/GZTimeWalker/GZCTF/actions/workflows/ci.yml)
+![version](https://img.shields.io/github/v/release/GZTimeWalker/GZCTF?include_prereleases&label=version)
+![license](https://img.shields.io/github/license/GZTimeWalker/GZCTF?color=FF5531)
+[![Crowdin](https://badges.crowdin.net/gzctf/localized.svg)](https://crowdin.com/project/gzctf)
 
-GZ::CTF 是一个基于 ASP.NET Core 的开源 CTF 平台。
+[![Telegram Group](https://img.shields.io/endpoint?color=blue&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fgzctf)](https://telegram.dog/gzctf)
+[![QQ Group](https://img.shields.io/badge/QQ%20Group-903244818-blue)](https://jq.qq.com/?_wv=1027&k=muSqhF9x)
+[![Discord](https://img.shields.io/discord/1239476909033656320?label=Discord)](https://discord.gg/dV9A6ZjVhC)
 
-## 特性
+[English](./README.md), [简体中文](./README.zh.md), [日本語](./README.ja.md)
 
-- 创建高度可自定义的题目
-  - 题目类型：静态附件、动态附件、静态容器、动态容器
-    - 静态附件：共用附件，任意添加的 flag 均可提交。
-    - 动态附件：需要至少满足队伍数量的 flag 和附件，附件及 flag 按照队伍进行分发。
-    - 静态容器：共用容器，任意添加的 flag 均可提交。
-    - 动态容器：自动生成并通过容器环境变量进行 flag 下发，每个队伍 flag 唯一。
-  - 动态分值
-    - 分值曲线：
-        $$f(S, r, d, x) = \left \lfloor S \times \left[r  + ( 1- r) \times exp\left( \dfrac{1 - x}{d} \right) \right] \right \rfloor $$
-      其中 $S$ 为原始分值、 $r$ 为最低分值比例、 $d$ 为难度系数、 $x$ 为提交次数。前三个参数可通过自定义实现绝大部分的动态分值需求。
-    - 三血奖励：
-      平台对一二三血分别奖励 5%、3%、1% 的当前题目分值
-  - 比赛进行中可启用新题
-  - 动态 flag 中启用作弊检测
-- 基于 Docker 或 K8s 的动态容器分发
-- 动态展示可缩放的前十名队伍得分时间线、动态隐藏的积分榜
-- 基于 signalR 的实时比赛通知、比赛事件和 flag 提交监控及日志监控
-- SMTP 注册邮件发送、基于 Google ReCaptchav3 的恶意注册防护
-- 用户封禁、用户三级权限管理
-- 以及更多……
+GZ::CTF is an open source CTF platform based on ASP.NET Core.
 
-## Demo
+> [!IMPORTANT]
+>
+> **To save your effort, please read the documentation carefully before using: [https://gzctf.gzti.me/](https://gzctf.gzti.me/)**
 
-![](assets/demo_0.jpg)
-![](assets/demo_1.jpg)
-![](assets/demo_2.jpg)
-![](assets/demo_3.jpg)
+> [!WARNING]
+>
+> **Upgrade and migration considerations:**
+>
+> 1. To upgrade the platform, simply pull the latest image and restart, and the database migration will be performed automatically.
+> 2. In general, **downgrade** operations are not supported. Upgrading versions with a large time span may result in data incompatibility, so **please make sure to back up your data**.
+> 3. After the upgrade, there may be new configuration items and changes in file structure. It is recommended to consult the official documentation or the community.
+> 4. If you are migrating to another branch project, please pay attention to whether the database structure has changed. **The database after the change does not support rollback to the original version**.
+> 5. The community and the official maintainers are not responsible for data loss, data incompatibility, and other issues. For issues with branch projects, please contact the corresponding project maintainer.
 
-## 安装配置
+## Features 🛠️
 
-应用已编译打包成 Docker 镜像，可通过以下方式获取：
+- Create highly customizable challenges
 
-```bash
-docker pull ghcr.io/gztimewalker/gzctf/gzctf:develop
-```
+  - Type of challenges: Static Attachment, Dynamic Attachment, Static Container, Dynamic Container
 
-也可使用根目录下的 `docker-compose.yml` 文件进行配置。
+    - Static Attachment: Shared attachments, any configured flag can be accepted.
+    - Dynamic Attachment: The number of flags and attachments must be at least the number of teams. Attachments and flags are distributed according to the teams.
+    - Static Container: Shared container templates, no dynamic flag is issued, and any configured flag can be submitted.
+    - Dynamic Container: Automatically generate and issue flags through container environment variables, and flag of each team is unique.
 
-### `appsettings.json` 配置
+  - Dynamic Scores
 
-为了使注册功能正常使用，请补全 `EmailConfig` 及 `GoogleRecaptcha` 部分，其中验证码请借由 [recaptcha](https://www.google.com/recaptcha/admin) 处注册。
+    - Curve of scores:
 
-当 `ContainerProvider` 为 `Docker` 时：
-  - 如需使用本地 docker，请将 Uri 置空，并将 `/var/run/docker.sock` 挂载入容器对应位置
-  - 如需使用外部 docker，请将 Uri 指向对应 docker API Server
+      $$f(S, r, d, x) = \left \lfloor S \times \left[r  + ( 1- r) \times \exp\left( \dfrac{1 - x}{d} \right) \right] \right \rfloor $$
 
-当 `ContainerProvider` 为 `K8s` 时：
-  - 请将集群连接配置放入 `k8sconfig.yaml` 文件中，并将其挂载到 `/app` 目录下
+      Where $S$ is the original score, $r$ is the minimum score ratio, $d$ is the difficulty coefficient, and $x$ is the number of submissions. The first three parameters can be customized to satisfy most of the dynamic score requirements.
 
-```json
-{
-  "AllowedHosts": "*",
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=db:5432;Database=ctf;Username=postgres;Password=Fyjd0HtrL00QD555W1b6WLKbLl62cHT0"
-  },
-  "Logging": {
-    "LogLevel": {
-      "Default": "Trace",
-      "Microsoft": "Warning",
-      "Microsoft.Hosting.Lifetime": "Information"
-    }
-  },
-  "EmailConfig": {
-    "SendMailAddress": "",
-    "UserName": "",
-    "Password": "",
-    "Smtp": {
-      "Host": "",
-      "Port": 587,
-      "EnableSsl": true
-    }
-  },
-  "ContainerProvider": "Docker",
-  "DockerConfig": {
-    "Uri": "",
-    "PublicIP": "127.0.0.1"
-  },
-  "GoogleRecaptcha": {
-    "IsEnable": false,
-    "VerifyAPIAddress": "https://www.recaptcha.net/recaptcha/api/siteverify",
-    "Sitekey": "",
-    "Secretkey": "",
-    "RecaptchaThreshold": "0.5"
-  }
-}
-```
+    - Bonus for first three solves:
+      The platform rewards 5%, 3%, and 1% of the current score for the first three solves respectively.
 
-## 初始管理员
+  - Disable or enable challenges during the competition, and release new challenges at any time.
+  - Dynamic flag sharing detection, optional flag template, leet flag
 
-生产环境中默认不存在管理员权限用户，需要手动更改数据库条目。当管理员注册完成并成功登录后，进入所选数据库表格后执行：
+- **Teams** score timeline, scoreboard. Teams can be grouped
+- Dynamic container distribution, management, and multiple port mapping methods based on **Docker or K8s**
+- **Real-time** competition notification, competition events and flag submission monitoring, and log monitoring based on SignalR
+- SMTP email verification, malicious registration protection based on Google ReCaptchav3
+- Ban specific user, three-level user permission management
+- Optional team review, invitation code, registration email restriction
+- Writeup collection, review, and batch download in the platform
+- Download exported scoreboard, export all submission records
+- Monitor submissions and major event logs during the competition
+- Challenges traffic forwarding based on **TCP over WebSocket proxy**, configurable traffic capture
+- Cluster cache based on Redis, database storage backend based on PGSQL
+- Storage backend based on local disk and **object storage (MinIO, S3, etc.)**
+- Customizable global configuration, platform title, record information
+- Support for **dark mode**, multiple languages, and custom themes
+- Customizable **website footer**, **website favicon**, and **html description** for SEO
+- Support metrics and distributed tracing
+- And more...
 
-```sql
-update "AspNetUsers" set "Role"=3 where "UserName"='GZTime';
-```
+## About i18n 🌐
 
-## 关于 i18n
+Currently, the platform supports multiple languages, and the translation progress is as follows:
 
-暂不考虑进行多语言适配。
+### Translated by Community
 
-## Stargazers over time
+- English (en-US): Fully supported, **default language**
+- Simplified Chinese (zh-CN): Fully supported
+- Traditional Chinese (zh-TW): Fully supported
+- Japanese (ja-JP): Fully supported, translated by [Steve](https://github.com/hez2010)
+- Indonesian (id-ID): Fully supported, translated by [Rio](https://github.com/riodrwn)
+- Korean (ko-KR): Fully supported, translated by [Sy2n0](https://github.com/Sy2n0), [kimjw0427](https://github.com/kimjw0427), [LittleDev0617](https://github.com/LittleDev0617), [Jungwoong Kim](https://github.com/jungwngkim) and [blluv](https://github.com/blluv)
+- Russian (ru-RU): Fully supported, translated by [FazaN](https://github.com/CyberFazaN)
 
-[![Stargazers over time](https://starchart.cc/GZTimeWalker/GZCTF.svg)](https://starchart.cc/GZTimeWalker/GZCTF)
+### Translated by Machine and AI
+
+- German (de-DE)
+- French (fr-FR)
+- Spanish (es-ES)
+
+These translations are not perfect, and we need your help to improve them.
+
+If you are interested in contributing to the translation, please refer to the [Crowdin project](https://crowdin.com/project/gzctf).
+
+## Demo 🗿
+
+![index.webp](assets/images/index.webp)
+![game.challenges.webp](assets/images/game.challenges.webp)
+![game.scoreboard.webp](assets/images/game.scoreboard.webp)
+![admin.settings.webp](assets/images/admin.settings.webp)
+![admin.challenges.webp](assets/images/admin.challenges.webp)
+![admin.challenge.info.webp](assets/images/admin.challenge.info.webp)
+![admin.challenge.flags.webp](assets/images/admin.challenge.flags.webp)
+![admin.game.info.webp](assets/images/admin.game.info.webp)
+![admin.game.review.webp](assets/images/admin.game.review.webp)
+![admin.teams.webp](assets/images/admin.teams.webp)
+![admin.instances.webp](assets/images/admin.instances.webp)
+![monitor.game.events.webp](assets/images/monitor.game.events.webp)
+![monitor.game.submissions.webp](assets/images/monitor.game.submissions.webp)
+
+## Contributors 👋
+
+<a href="https://github.com/GZTimeWalker/GZCTF/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=GZTimeWalker/GZCTF" />
+</a>
+
+## CTF hosted with GZ::CTF 🏆
+
+Some event organizers have already chosen GZCTF and successfully completed their competitions. Their trust, support, and timely feedback are the primary driving force behind the continuous improvement of GZCTF.
+
+### International Events
+
+- [**San Diego CTF 2024: Organized by University of California, San Diego**](https://ctftime.org/event/2325)
+- [**R3CTF 2024: Organized by r3kapig**](https://ctftime.org/event/2273)
+- [**TCP1P CTF 2024: Exploring Nusantara's Digital Realm**](https://ctftime.org/event/2256/)
+
+### Other Events
+
+- **THUCTF 2022: Tsinghua University Network Security Technology Challenge**
+- **ZJUCTF 2022/2023/2024: Zhejiang University CTF**
+- **SUSCTF 2022/2023/2024: Southeast University Tiger Crouching, Dragon Coiling Cup Network Security Challenge**
+- **DIDCTF 2022/2023/2024: Gansu Political and Legal University CTF**
+- **W4terCTF [2023](https://github.com/W4terDr0p/W4terCTF-2023)/2024: Information Security Novice Competition of Sun Yat-sen University**
+- **ZJNUCTF [2023](https://github.com/A1natas/zjnuctf-school-contest-2023)/[2024](https://github.com/A1natas/zjnuctf-school-contest-2024): Zhejiang Normal University CTF**
+- **Woodpecker: The First Network Security Practice Competition of Shandong University of Science and Technology**
+- **NPUCTF 2022: Northwestern Polytechnical University CTF**
+- **SkyNICO Network Space Security Tri-school Competition (Xiamen University of Technology, Fujian Normal University, Qilu University of Technology)**
+- **Hunan Police Academy Network Security Attack and Defense Competition**
+- **TongjiCTF 2023: The Fifth Network Security Competition of Tongji University**
+- **CatCTF 2023/2024: Network Security Competition of Tongji University (Elementary Level)**
+- **CTBUCTF 2023: The First Network Security Competition of Chongqing Technology and Business University**
+- **NPUCTF 2023 - The First Security Experimental Skills Competition of Northwestern Polytechnical University**
+- **XZCTF 2023: The First Network Security Novice Competition of Zhejiang Normal University Xingzhi College**
+- **ORGCTF 2023: Gongcheng Cup Freshman Competition of Harbin Engineering University**
+- **SHCTF 2023: "Shanhe" Network Security Skills Challenge**
+- **Tianjin University of Science and Technology 2023 College Student Maker Training Camp Network Security Group Selection**
+- **HYNUCTF 2023: Xuantian Network Security Laboratory Recruitment Competition of Hunan Hengyang Normal University**
+- **NYNUCTF S4: Recruitment Competition of Xuantian Network Security Laboratory of Nanyang Normal University**
+- **The First Network Security Freshman Challenge of Shangqiu Normal University**
+- **SVUCTF-WINTER-2023: Suzhou Vocational University 2023 Winter Freshman Competition**
+- **BIEM CTF 2024：Beijing Institute Of Economics And Management - The first BIEM "Xin'an Cup" CTF competition**
+- **BUAACTF 2024: Beihang University CTF**
+- **The first "Qu STAR" network security skills competition of Qufu Normal University**
+- **DinoCTF: The 4th & 5th Information Security Competition of Chengdu University of Technology**
+- **RedrockCTF 2024：Information Security Novice Competition of Chongqing University Of Posts And Telecommunications**
+
+_These list is not in any particular order, and PRs are welcome for additions._
+
+## Special Thanks ❤️‍🔥
+
+Thanks to NanoApe, the organizer of THUCTF 2022, for providing sponsorship and conducting Alibaba Cloud public network stress testing. This helped validate the service stability of the GZCTF standalone instance (16c90g) under the pressure of thousands of concurrent requests and 1.34 million requests in three minutes.
+
+## Stars ✨
+
+[![Stargazers over time](https://starchart.cc/GZTimeWalker/GZCTF.svg?variant=adaptive)](https://starchart.cc/GZTimeWalker/GZCTF)
