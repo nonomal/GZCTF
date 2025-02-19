@@ -26,11 +26,15 @@ Obj/
 
 # Visual Studio 2015 cache/options directory
 .vs/
-/wwwroot/dist/
+**/wwwroot/dist/
+**/wwwroot/index.html
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
+
+# xUnit
+coverage.json
 
 # NUNIT
 *.VisualState.xml
@@ -180,7 +184,7 @@ ClientBin/
 *.publishsettings
 orleans.codegen.cs
 
-/node_modules
+**/node_modules
 
 # RIA/Silverlight projects
 Generated_Code/
@@ -231,18 +235,23 @@ _Pvt_Extensions
 # FAKE - F# Make
 .fake/
 
+# Docs
+**/.next
+
 **/appsettings.json
 **/appsettings.*.json
 !**/appsettings.Template.json
-!/appsettings.json
+**/kube-config.yaml
 
-**/k8sconfig.yaml
-
-/.VSCodeCounter/*
-*/db/*
-**/CTFServer.xml
+.VSCodeCounter/*
+.idea/**
 .vscode/**
-**/uploads/**
-**/log/**
+
 **/*.key
 **/*.db*
+**/db/*
+**/*.xml
+**/log/**
+**/files/**
+**/uploads/**
+**/.DS_Store
